@@ -51,7 +51,7 @@ export function cadastraPostit(dados) {
     api
       .post('/postits', json)
       .then(response => {
-        dados.id = response.data.id
+        dados.id = response.data._id
         dispatch({ type: 'CADASTRA_POSTIT', dados })
       })
   }
@@ -89,7 +89,7 @@ export function listaPostits() {
       .get('/postits')
       .then(response => {
         const dados = response.data.map(item => ({
-          id: item.id,
+          id: item._id,
           titulo: item.title,
           texto: item.description
         }))
