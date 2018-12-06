@@ -19,7 +19,7 @@ class Postit extends Component {
     if (cadastrando) {
       const dados = {
         titulo: form.titulo.value,
-        texto: form.texto.value
+        descricao: form.texto.value
       }
       
       this.props.cadastraPostit(dados)
@@ -29,7 +29,7 @@ class Postit extends Component {
       const dados = {
         id: this.props.id,
         titulo: form.titulo.value,
-        texto: form.texto.value
+        descricao: form.texto.value
       }
 
       this.props.alteraPostit(dados)

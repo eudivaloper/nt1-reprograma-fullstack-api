@@ -26,22 +26,25 @@ router.get("/", (req, res) => {
   try {
     const token = req.headers["x-access-token"];
 
-    // if (!token) {
-    //   throw new TokenError('Sem permissão.', 500);
-    // }
+    if (!token) {
+      throw new TokenError("Sem permissão.", 500);
+    }
 
-    // jwt.verify(token, process.env.SECRET, function(error, decoded) {
-    //   if (error) {
-    //     throw new TokenError('Falha ao autenticar token.', 500);
-    //   }
-    // });
+    jwt.verify(token, process.env.SECRET, function(error, decoded) {
+      if (error) {
+        throw new TokenError("Falha ao autenticar token.", 500);
+      }
+    });
 
     // res.send(postits);
-
+    // preciso fazer a busca no banco
     postits.find((error, response) => {
+      // preciso tratar o erro, caso ocorra
       if (error) {
+        // caso de algum erro
         return res.status(500).send(error);
       }
+      // caso contrário, me mande o retorno
       return res.status(200).send(response);
     });
   } catch (e) {
@@ -52,7 +55,8 @@ router.get("/", (req, res) => {
 
 router.get("/:id", (req, res) => {
   try {
-    const postit = findPostit(req.params.id);
+    // const postit = findPostit(req.params.id);
+
     const token = req.headers["x-access-token"];
 
     if (!token) {
@@ -65,13 +69,20 @@ router.get("/:id", (req, res) => {
       }
     });
 
-    res.send(postit);
+    postits.findById(req.params.id, (err, postit) => {
+      if (err) res.send(err);
+
+      res.send(postit);
+    });
+
+    // res.send(postit);
   } catch (e) {
     res.status(e.code).send(e.message);
   }
 });
 
 router.post("/", (req, res) => {
+  // o id não será mais gerado por nós
   // const id = Math.max(...postits.map(postit => postit.id)) + 1;
   const token = req.headers["x-access-token"];
   // const newPostit = {
@@ -89,6 +100,7 @@ router.post("/", (req, res) => {
     if (!token) {
       throw new TokenError("Sem permissão.", 500);
     }
+
     jwt.verify(token, process.env.SECRET, function(error, decoded) {
       if (error) {
         throw new TokenError("Falha ao autenticar token.", 500);
@@ -101,13 +113,13 @@ router.post("/", (req, res) => {
       if (err) {
         res.send(err);
       }
+      // setsRelantionship(newPostit._id, token);
       res.send(newPostit);
     });
 
     // postits.push(newPostit);
-    // setsRelantionship(newPostit.id, token);
-    // res.send(newPostit);
   } catch (e) {
+    console.log(e);
     res.status(e.code).send(e.message);
   }
 });
@@ -129,6 +141,8 @@ router.put("/:id", (req, res) => {
     });
 
     validatesRequest(req.body);
+    // updatedPostit = Object.assign(postit, req.body);
+    // res.send(updatedPostit);
 
     postits.findByIdAndUpdate(
       req.params.id,
@@ -139,9 +153,6 @@ router.put("/:id", (req, res) => {
         res.send(postit);
       }
     );
-
-    // updatedPostit = Object.assign(postit, req.body);
-    // res.send(updatedPostit);
   } catch (e) {
     res.status(e.code).send(e.message);
   }
@@ -165,13 +176,14 @@ router.delete("/:id", (req, res) => {
 
     // unsetsRelationship(req.params.id, token);
     // postits.splice(postitPosition, 1);
+    postits.findByIdAndDelete(req.params.id, { $set: req.body }, function(
+      err,
+      postit
+    ) {
+      if (err) return res.status(err.code).send(err.message);
+      res.send(postit);
+    });
     // res.send(postit);
-    postits.findByIdAndDelete(
-      req.params.id, function(err, postit) {
-        if (err) return res.status(err.code).send(err.message);
-        res.send(postit)
-      }
-    )
   } catch (e) {
     res.status(e.code).send(e.message);
   }

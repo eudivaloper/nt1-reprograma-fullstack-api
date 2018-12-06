@@ -26,7 +26,7 @@ class Login extends Component {
 
     const dados = {
       email: campoEmail.getValor(),
-      senha: campoSenha.getValor()
+      senha: campoSenha.getValor() // valor alterado para enviar email/password
     }
 
     this.props.logaUsuario(dados)

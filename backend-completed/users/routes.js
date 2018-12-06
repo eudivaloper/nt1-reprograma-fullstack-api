@@ -56,32 +56,23 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const token = req.headers['x-access-token'];
-  const id = Math.max(...users.map(users => users.id)) + 1;
-  const newUser = {
-    id,
+  const newUser = new users({
     name: req.body.name,
-    email: req.body.email
-  };
-  let decodedId;
+    phone: req.body.phone,
+    email: req.body.email,
+    password: req.body.password
+  });
 
   try {
-    if (!token) {
-      throw new TokenError('Sem permissão.', 500);
-    }
+    validatesRequest(req.body);
 
-    jwt.verify(token, process.env.SECRET, function(error, decoded) {
-      if (error) {
-        throw new TokenError('Falha ao autenticar token.', 500);
+    newUser.save(err => {
+      if (err) {
+        res.send(err);
       }
 
-      decodedId = decoded.id;
+      res.send(newUser);
     });
-
-    hasPermission(decodedId);
-    validatesRequest(req.body);
-    users.push(newUser);
-    res.send(newUser);
   } catch(e) {
     res.status(e.code).send(e.message);
   }
@@ -155,6 +146,7 @@ function findUser(id) {
 function validatesRequest(params) {
   const schema = {
     name: Joi.string().min(3).required(),
+    phone: Joi.string().min(10).required(),
     email: Joi.string().min(3).required(),
     password: Joi.string().min(3).required(),
   }

@@ -20,6 +20,7 @@ export function logaUsuario(dados) {
       email: dados.email,
       password: dados.senha
     }
+
     api
       .post('/login', json)
       .then(response => {
@@ -27,7 +28,6 @@ export function logaUsuario(dados) {
         dispatch({ type: 'LOGA_USUARIO', dados: response.data })
       })
       .catch(error => {
-        console.error(error)
         // if (error.response) {
         //   alert(error.response.data.erro)
         // }
@@ -42,12 +42,30 @@ export function deslogaUsuario() {
   }
 }
 
+export function cadastraUsuario(dados) {
+  return (dispatch) => {
+    const json = {
+      name: dados.nome,
+      phone: dados.telefone,
+      email: dados.email,
+      password: dados.senha
+    }
+
+    api
+      .post('/users', json)
+      .then(() => {
+        dispatch(logaUsuario(dados))
+      })
+  }
+}
+
 export function cadastraPostit(dados) {
   return (dispatch) => {
     const json = {
       title: dados.titulo,
-      description: dados.texto
+      description: dados.descricao
     }
+
     api
       .post('/postits', json)
       .then(response => {
@@ -62,7 +80,7 @@ export function alteraPostit(dados) {
     const url = `/postits/${dados.id}`
     const json = {
       title: dados.titulo,
-      description: dados.texto
+      description: dados.descricao
     }
     api
       .put(url, json)
@@ -91,7 +109,7 @@ export function listaPostits() {
         const dados = response.data.map(item => ({
           id: item._id,
           titulo: item.title,
-          texto: item.description
+          descricao: item.description
         }))
         dispatch({ type: 'LISTA_POSTITS', dados })
       })

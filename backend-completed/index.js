@@ -7,15 +7,18 @@ const users = require("./users/users.js");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// vamos utilizar a dependência do mongoose
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/integracao")
+// mongoose.connect("mongodb://localhost:27017/integracao");
+mongoose.connect("mongodb://camila:camila123@ds119223.mlab.com:19223/integracao");
 
 var db = mongoose.connection;
-db.on("error", console.error.bind(console, "Erro de conexão."));
+db.on("error", console.error.bind(console, "Erro de conexão:"));
 db.once("open", function() {
-  console.log("Conexão feita com sucesso.")
+  console.log("Conexão feita com sucesso");
 });
 
+// habilitar o cors - liberar origem
 app.use(function(req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -49,15 +52,25 @@ app.post("/api/login", (req, res) => {
 });
 
 function authenticatesUser(authUser, cb) {
-  const user = users.find(user => user.email === authUser.email);
+  // const user = users.find(user => user.email === authUser.email);
 
-  if (!user) {
-    return cb({ code: 500, message: "Usuário não existe." });
-  } else if (user.password !== authUser.password) {
-    return cb({ code: 500, message: "Senha incorreta." });
-  }
+  // if (!user) {
+  //   return cb({ code: 500, message: "Usuário não existe." });
+  // } else if (user.password !== authUser.password) {
+  //   return cb({ code: 500, message: "Senha incorreta." });
+  // }
 
-  return cb(null, user.id);
+  // return cb(null, user.id);
+
+  users.findOne(
+    { email: authUser.email, password: authUser.password },
+    function(error, response) {
+      if (error) {
+        return cb({ code: 500, message: "Usuário ou senha inválido." });
+      }
+      return cb(null, response.id);
+    }
+  );
 }
 
 app.listen(PORT, () => console.log(`Ouvindo na porta ${PORT}...`));

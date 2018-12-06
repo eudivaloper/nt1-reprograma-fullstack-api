@@ -44,17 +44,17 @@ class Home extends Component {
           <>
             <Postit />
 
-            <div>
-              {postits.map(postit => (
-                <Postit 
-                  key={postit.id}
-                  id={postit.id}
-                  titulo={postit.titulo}
-                  texto={postit.texto}
-                />
-              ))}
-            </div>
-          </>
+              <div>
+                {postits.map(postit => (
+                  <Postit 
+                    key={postit.id}
+                    id={postit.id}
+                    titulo={postit.titulo}
+                    texto={postit.descricao}
+                  />
+                ))}
+              </div>
+            </>
         )}
       </main>
     )
